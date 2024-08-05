@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Conditional Execution test_1') {
+        stage('Conditional Execution') {
             when {
                 anyOf {
                     branch 'master'
@@ -21,7 +21,7 @@ pipeline {
                     steps {
                         echo 'Building the application...'
                         script {
-                            sh 'docker build -t cargo-solutions .'
+                            docker.build('cargo-solutions')
                         }
                     }
                 }
@@ -30,7 +30,9 @@ pipeline {
                     steps {
                         echo 'Running tests...'
                         script {
-                            sh 'docker-compose run --rm test'
+                            docker.image('cargo-solutions').inside {
+                                sh 'docker-compose run --rm test'
+                            }
                         }
                     }
                 }
