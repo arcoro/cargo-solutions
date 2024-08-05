@@ -1,0 +1,337 @@
+tables:
+  catalog:
+    id:
+      type: int8
+      generation_type: sequencial
+      primary_key: true
+    name:
+      type: varchar(30)
+      not_null: true
+      unique: true
+    type:
+      type: varchar(30)
+      not_null: true
+    additional_code:
+      type: int4
+      default: 0
+    created_at:
+      type: timestamp
+      default: now()
+  pages:
+    id:
+      type: int4
+      generation_type: sequencial
+      primary_key: true
+    page_type:
+      type: varchar(10)
+      not_null: true
+    icon:
+      type: varchar(30)
+      not_null: true
+    path:
+      type: varchar(100)
+      not_null: true
+      unique: true
+    title:
+      type: varchar(60)
+      not_null: true
+    actions:
+      type: jsonb
+    previous_menu:
+      type: int4
+  roles:
+    id:
+      type: int4
+      generation_type: sequencial
+      primary_key: true
+    role:
+      type: varchar(20)
+      not_null: true
+    created_at:
+      type: timestamp
+      default: now()
+  pages_role:
+    id:
+      type: int4
+      generation_type: sequencial
+      primary_key: true
+    page_id:
+      type: int4
+      not_null: true
+      constraint:
+        name: fk_pages_role_page_id
+        foreign_key: page_id
+        table: pages
+        column: id
+    role_id:
+      type: int4
+      not_null: true
+      constraint:
+        name: fk_pages_role_role_id
+        foreign_key: role_id
+        table: roles
+        column: id
+    actions:
+      type: jsonb
+  companies:
+    id:
+      type: uuid
+      default: uuid_generate_v4()
+      primary_key: true
+    company_name:
+      type: varchar(80)
+      not_null: true
+    identifier:
+      type: varchar(40)
+      not_null: true
+    phone:
+      type: varchar(10)
+      not_null: true
+    email:
+      type: varchar(200)
+      not_null: true
+      unique: true
+    high_street:
+      type: varchar(150)
+      not_null: true
+    side_street:
+      type: varchar(150)
+      not_null: true
+    identity_type_id:
+      type: int4
+      constraint:
+        name: fk_companies_identity_type_id
+        foreign_key: identity_type_id
+        table: catalog
+        column: id
+    identity:
+      type: varchar(15)
+      not_null: true
+      unique: true
+    created_at:
+      type: timestamp
+      default: now()
+    updated_at:
+      type: timestamp
+  configurations:
+    id:
+      type: uuid
+      default: uuid_generate_v4()
+      primary_key: true
+    company_id:
+      type: uuid
+      constraint:
+        name: fk_configurations_company_id
+        foreign_key: company_id
+        table: companies
+        column: id
+    logo:
+      type: varchar(400)
+      not_null: true
+    primary_color:
+      type: varchar(6)
+      not_null: true
+    secondary_color:
+      type: varchar(6)
+      not_null: true
+    created_at:
+      type: timestamp
+      default: now()
+    updated_at:
+      type: timestamp
+  users:
+    id:
+      type: uuid
+      default: uuid_generate_v4()
+      primary_key: true
+    company_id:
+      type: uuid
+      constraint:
+        name: fk_users_company_id
+        foreign_key: company_id
+        table: companies
+        column: id
+    role_id:
+      type: int4
+      constraint:
+        name: fk_users_role_id
+        foreign_key: role_id
+        table: roles
+        column: id
+    name:
+      type: varchar(30)
+      not_null: true
+    last_name:
+      type: varchar(30)
+      not_null: true
+    email:
+      type: varchar(200)
+      not_null: true
+      unique: true
+    phone:
+      type: varchar(10)
+      not_null: true
+    identity_type_id:
+      type: int4
+      constraint:
+        name: fk_users_identity_type_id
+        foreign_key: identity_type_id
+        table: catalog
+        column: id
+    identity:
+      type: varchar(15)
+      not_null: true
+      unique: true
+    created_at:
+      type: timestamp
+      default: now()
+    updated_at:
+      type: timestamp
+  security:
+    id:
+      type: uuid
+      default: uuid_generate_v4()
+      primary_key: true
+    user_id:
+      type: uuid
+      constraint:
+        name: fk_security_user_id
+        foreign_key: user_id
+        table: users
+        column: id
+    password:
+      type: varchar
+      not_null: true
+    first_login:
+      type: timestamp
+      default: now()
+    last_login:
+      type: timestamp
+    intents:
+      type: int4
+      default: 0
+    history_passwords:
+      type: jsonb
+    validated:
+      type: boolean
+      default: false
+    enabled:
+      type: boolean
+      default: false
+    blocked:
+      type: boolean
+      default: false
+    password_expires_at:
+      type: timestamp
+    verification_code:
+      type: varchar(200)
+    recovery_code:
+      type: varchar(200)
+    otp_code:
+      type: varchar(200)
+  consolidation:
+    id:
+      type: int8
+      generation_type: sequencial
+      primary_key: true
+    company_id:
+      type: uuid
+      constraint:
+        name: fk_consolidation_company_id
+        foreign_key: company_id
+        table: companies
+        column: id
+    state:
+      type: int4
+      constraint:
+        name: fk_consolidation_state
+        foreign_key: state
+        table: catalog
+        column: id
+    consolidation_name:
+      type: varchar
+      not_null: true
+      unique: true
+    package_file:
+      type: varchar
+    manifest_file:
+      type: varchar
+    ingress_file:
+      type: varchar
+    state_file:
+      type: varchar
+    created_at:
+      type: timestamp
+      default: now()
+    updated_at:
+      type: timestamp
+  consolidation_state:
+    id:
+      type: int4
+      generation_type: sequencial
+      primary_key: true
+    consolidation_id:
+      type: int8
+      constraint:
+        name: fk_consolidation_state_id
+        foreign_key: consolidation_id
+        table: consolidation
+        column: id
+    das_state:
+      type: int4
+      constraint:
+        name: fk_consolidation_state_das
+        foreign_key: das_state
+        table: catalog
+        column: id
+    guide:
+      type: varchar(50)
+      not_null: true
+      unique: true
+  packages_dispatch:
+    id:
+      type: int4
+      generation_type: sequencial
+      primary_key: true
+    consolidation_id:
+      type: int8
+      constraint:
+        name: fk_packages_dispatcj_consolidation_id
+        foreign_key: consolidation_id
+        table: consolidation
+        column: id
+    import_type:
+      type: int4
+      constraint:
+        name: fk_packages_dispatch_import_type
+        foreign_key: import_type
+        table: catalog
+        column: id
+    tracking:
+      type: varchar(100)
+      not_null: true
+      unique: true
+    guide:
+      type: varchar(50)
+      not_null: true
+      unique: true
+    payment_order:
+      type: int8
+      not_null: true
+    units:
+      type: int4
+      default: 0
+    value:
+      type: decimal
+      default: 0
+    weight:
+      type: number
+      default: 0
+    description:
+      type: varchar(500)
+    phone:
+      type: varchar(15)
+    city_code:
+      type: int4
+    province:
+    

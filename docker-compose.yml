@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+
+  test:
+    build:
+      context: .
+      dockerfile: test.Dockerfile
+    container_name: test
+    environment:
+      - SPRING_PROFILES_ACTIVE=test
+      - APP_NAME=cargo-solutions
+      - DB_HOST=postgres_test
+      - DB_PORT=5432
+      - DB_NAME=cargo_solutions
+      - DB_USER=cargo_solutions
+      - DB_PASSWORD=cargo_solutions
+    depends_on:
+      - db
+    command: >
+      ./gradlew --no-daemon
+      -g ./.gradle-cache
+      test
+
+  db:
+    image: postgres:latest
+    container_name: postgres_test
+    environment:
+      POSTGRES_DB: cargo_solutions
+      POSTGRES_USER: cargo_solutions
+      POSTGRES_PASSWORD: cargo_solutions
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis
+    container_name: redis_test
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: cargo_solutions
+
+
