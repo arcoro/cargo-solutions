@@ -2,25 +2,36 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Build') {
-            steps {
-                script {
-                    docker.build('cargo-solutions')
+        stage('Conditional Execution') {
+            when {
+                anyOf {
+                    branch 'master'
+                    branch 'develop'
                 }
             }
-        }
+            stages {
+                stage('Checkout') {
+                    steps {
+                        echo 'Checking out code...'
+                        checkout scm
+                    }
+                }
 
-        stage('Test') {
-            steps {
-                script {
-                    docker.image('cargo-solutions').inside {
-                        sh 'docker-compose run --rm test'
+                stage('Build') {
+                    steps {
+                        echo 'Building the application...'
+                        script {
+                            sh 'docker build -t cargo-solutions .'
+                        }
+                    }
+                }
+
+                stage('Test') {
+                    steps {
+                        echo 'Running tests...'
+                        script {
+                            sh 'docker-compose run --rm test'
+                        }
                     }
                 }
             }
@@ -29,6 +40,7 @@ pipeline {
 
     post {
         always {
+            echo 'Cleaning up...'
             script {
                 sh 'docker-compose down -v'
             }
