@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Conditional Execution') {
+        stage('Conditional Execution test_1') {
             when {
                 anyOf {
                     branch 'master'
