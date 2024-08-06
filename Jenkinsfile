@@ -2,16 +2,11 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout -1') {
-            steps {
-                checkout scm
-            }
-        }
-
+       
         stage('Build') {
             steps {
                 script {
-                    docker.build('cargo-solutions')
+                    sh 'docker build -t cargo-solutions .'
                 }
             }
         }
