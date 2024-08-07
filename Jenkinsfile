@@ -20,7 +20,7 @@ pipeline {
                 stage('Build Docker Image') {
                     steps {
                         script {
-                            sh 'DOCKER_BUILDKIT=0 docker build -t cargo-solutions .'
+                            sh 'docker build -t cargo-solutions .'
                         }
                     }
                 }
