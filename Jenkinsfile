@@ -2,8 +2,30 @@ pipeline {
     agent any
 
     stages {
-       
-        stage('Build') {
+        stage('Verify Docker Installation') {
+            steps {
+                script {
+                    def dockerVersion = sh(script: 'docker --version', returnStdout: true).trim()
+                    echo "Docker version: ${dockerVersion}"
+                }
+            }
+        }
+        stage('Verify Docker Compose Installation') {
+            steps {
+                script {
+                    def composeVersion = sh(script: 'docker-compose --version', returnStdout: true).trim()
+                    echo "Docker Compose version: ${composeVersion}"
+                }
+            }
+        }
+
+        stage('List Files') {
+            steps {
+                sh 'ls -la'
+            }
+        }
+
+        stage('Build Docker Image') {
             steps {
                 script {
                     sh 'docker build -t cargo-solutions .'
@@ -14,9 +36,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    docker.image('cargo-solutions').inside {
-                        sh 'docker-compose run --rm test'
-                    }
+                    sh 'docker-compose run --rm test'
                 }
             }
         }
