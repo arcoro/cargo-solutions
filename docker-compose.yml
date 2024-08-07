@@ -18,10 +18,7 @@ services:
     depends_on:
       - db
     command: >
-      chmod +x ./gradlew &&
-      ./gradlew --no-daemon
-      -g ./.gradle-cache
-      test
+      /bin/bash -c "chmod +x ./gradlew && ./gradlew --no-daemon -g ./.gradle-cache test"
 
   db:
     image: postgres:latest
