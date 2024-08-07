@@ -28,9 +28,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    docker.image('cargo-solutions').inside {
                         sh 'docker-compose run --rm test'
-                    }
                 }
             }
         }
