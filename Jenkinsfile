@@ -2,41 +2,37 @@ pipeline {
     agent any
 
     stages {
-        stage('Verify Docker Installation') {
-            steps {
-                script {
-                    def dockerVersion = sh(script: 'docker --version', returnStdout: true).trim()
-                    echo "Docker version: ${dockerVersion}"
+        stage('Conditional Execution') {
+            when {
+                anyOf {
+                    branch 'master'
+                    branch 'develop'
                 }
             }
-        }
-        stage('Verify Docker Compose Installation') {
-            steps {
-                script {
-                    def composeVersion = sh(script: 'docker-compose --version', returnStdout: true).trim()
-                    echo "Docker Compose version: ${composeVersion}"
+            stages {
+                stage('Checkout') {
+                    steps {
+                        echo 'Checking out code...'
+                        checkout scm
+                    }
                 }
-            }
-        }
 
-        stage('List Files') {
-            steps {
-                sh 'ls -la'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    sh 'docker build -t cargo-solutions .'
+                stage('Build') {
+                    steps {
+                        echo 'Building the application...'
+                        script {
+                            sh 'docker build -t cargo-solutions .'
+                        }
+                    }
                 }
-            }
-        }
 
-        stage('Test') {
-            steps {
-                script {
-                    sh 'docker-compose run --rm test'
+                stage('Test') {
+                    steps {
+                        echo 'Running tests...'
+                        script {
+                            sh 'docker-compose run --rm test'
+                        }
+                    }
                 }
             }
         }
@@ -44,6 +40,7 @@ pipeline {
 
     post {
         always {
+            echo 'Cleaning up...'
             script {
                 sh 'docker-compose down -v'
             }
