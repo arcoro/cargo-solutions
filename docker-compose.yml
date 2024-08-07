@@ -18,7 +18,7 @@ services:
     depends_on:
       - db
     command: >
-      chmod +x ./gradlew 
+      chmod +x ./gradlew &&
       ./gradlew --no-daemon
       -g ./.gradle-cache
       test
