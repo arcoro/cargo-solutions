@@ -21,6 +21,9 @@ pipeline {
                 stage('SonarQube analysis') {
                     steps {
                         script {
+                            sh 'chmod +x gradlew && ./gradlew build'
+                        }
+                        script {
                             def scannerHome = tool 'SonarQube Scanner 6.1';
                             withSonarQubeEnv('SonarQube') {
                                 sh "${scannerHome}/bin/sonar-scanner"
