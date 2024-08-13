@@ -18,6 +18,15 @@ pipeline {
                     }
                 }
 
+                stage('SonarQube ') {
+                    steps {
+                        echo 'Running SonarQube run...'
+                        script {
+                            sh './gradlew sonarqube'
+                        }
+                    }
+                }
+
                 stage('Build') {
                     steps {
                         echo 'Building the application...'
