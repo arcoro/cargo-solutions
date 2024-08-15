@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    enviroment{
+        LANG_TYPE = ""
+    }
+
     stages {
         stage('Conditional Execution') {
             when {
@@ -10,6 +14,7 @@ pipeline {
                     branch 'develop'
                 }
             }
+
             stages {
                 stage('Checkout') {
                     steps {
@@ -18,15 +23,17 @@ pipeline {
                     }
                 }
 
-                stage('SonarQube analysis') {
+                stage('Preparation') {
                     steps {
                         script {
-                            sh 'chmod +x gradlew && ./gradlew build'
-                        }
-                        script {
-                            def scannerHome = tool 'SonarQube Scanner 6.1';
-                            withSonarQubeEnv('SonarQube') {
-                                sh "${scannerHome}/bin/sonar-scanner"
+                            if (fileExists('build.gradle')) {
+                                LANG_TYPE = 'java'
+                            } else if (fileExists('package.json')) {
+                                LANG TYPE = 'nodejs'
+                            } else if (fileExists('requirements.txt')) {
+                                LANG_TYPE = 'python'
+                            } else {
+                                error "No se pudo detectar el lenguaje"
                             }
                         }
                     }
@@ -34,9 +41,25 @@ pipeline {
 
                 stage('Build') {
                     steps {
-                        echo 'Building the application...'
                         script {
-                            sh 'docker build -t cargo-solutions .'
+                            if (LANG TYPE == 'java') {
+                                sh 'chmod +x gradlew && ./gradlew build'
+                            } else if (LANG TYPE == 'nodejs') {
+                                sh 'npm install'
+                            } else if (LANG_TYPE == 'python') {
+                                sh 'pip install -r requirements.txt'
+                            }
+                        }
+                    }
+                }
+
+                stage('SonarQube analysis') {
+                    steps {
+                        script {
+                            def scannerHome = tool 'SonarQube Scanner 6.1';
+                            withSonarQubeEnv('SonarQube') {
+                                sh "${scannerHome}/bin/sonar-scanner"
+                            }
                         }
                     }
                 }
