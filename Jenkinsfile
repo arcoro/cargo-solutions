@@ -29,7 +29,7 @@ pipeline {
                             if (fileExists('build.gradle')) {
                                 LANG_TYPE = 'java'
                             } else if (fileExists('package.json')) {
-                                LANG TYPE = 'nodejs'
+                                LANG_TYPE = 'nodejs'
                             } else if (fileExists('requirements.txt')) {
                                 LANG_TYPE = 'python'
                             } else {
@@ -42,9 +42,9 @@ pipeline {
                 stage('Build') {
                     steps {
                         script {
-                            if (LANG TYPE == 'java') {
+                            if (LANG_TYPE == 'java') {
                                 sh 'chmod +x gradlew && ./gradlew build'
-                            } else if (LANG TYPE == 'nodejs') {
+                            } else if (LANG_TYPE == 'nodejs') {
                                 sh 'npm install'
                             } else if (LANG_TYPE == 'python') {
                                 sh 'pip install -r requirements.txt'
