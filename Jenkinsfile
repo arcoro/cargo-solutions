@@ -1,7 +1,6 @@
 pipeline {
     agent any
-
-    enviroment{
+    environment{
         LANG_TYPE = ""
     }
 
