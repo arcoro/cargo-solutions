@@ -2,7 +2,8 @@ pipeline {
     agent any
     environment {
         LANG_TYPE = ""
-        DOCKER_IMAGE = 'cargo-solutions'
+        //DOCKER_IMAGE = 'cargo-solutions'
+        JDK_HOME = tool name: 'JDK 22', type: 'jdk'
     }
 
     stages {
@@ -43,7 +44,10 @@ pipeline {
                     steps {
                         script {
                             if (LANG_TYPE == 'java') {
-                                sh 'docker build -t ${DOCKER_IMAGE} .'
+                                //sh 'docker build -t ${DOCKER_IMAGE} .'
+                                withEnv(["JAVA_HOME=${JDK_HOME}"]) {
+                                    sh 'chmod +x gradlew && ./gradlew build'
+                                }
                             } else if (LANG_TYPE == 'nodejs') {
                                 sh 'npm install'
                             } else if (LANG_TYPE == 'python') {
@@ -58,9 +62,7 @@ pipeline {
                         script {
                             def scannerHome = tool 'SonarQube Scanner 6.1';
                             withSonarQubeEnv('SonarQube') {
-                                sh '''
-                                    docker run --rm -v $WORKSPACE:/usr/src --workdir /usr/src ${DOCKER_IMAGE} ${scannerHome}/bin/sonar-scanner
-                                '''
+                                sh "${scannerHome}/bin/sonar-scanner"
                             }
                         }
                     }
