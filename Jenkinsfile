@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         LANG_TYPE = ""
-        JDK_HOME = tool name: 'JDK 22', type: 'jdk'
+        DOCKER_IMAGE = 'cargo-solutions'
     }
 
     stages {
@@ -15,68 +15,55 @@ pipeline {
                 }
             }
 
-            stages {
-                stage('Checkout') {
-                    steps {
-                        echo 'Checking out code...'
-                        checkout scm
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code...'
+                checkout scm
+            }
+        }
+
+        stage('Preparation') {
+            steps {
+                script {
+                    if (fileExists('build.gradle')) {
+                        LANG_TYPE = 'java'
+                    } else if (fileExists('package.json')) {
+                        LANG_TYPE = 'nodejs'
+                    } else if (fileExists('requirements.txt')) {
+                        LANG_TYPE = 'python'
+                    } else {
+                        error "No se pudo detectar el lenguaje"
                     }
                 }
+            }
+        }
 
-                stage('Preparation') {
-                    steps {
-                        script {
-                            if (fileExists('build.gradle')) {
-                                LANG_TYPE = 'java'
-                            } else if (fileExists('package.json')) {
-                                LANG_TYPE = 'nodejs'
-                            } else if (fileExists('requirements.txt')) {
-                                LANG_TYPE = 'python'
-                            } else {
-                                error "No se pudo detectar el lenguaje"
-                            }
-                        }
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker image...'
+                sh 'docker build -t ${DOCKER_IMAGE} .'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'SonarQube Scanner 6.1';
+                    withSonarQubeEnv('SonarQube') {
+                        sh '''
+                            docker run --rm -v $WORKSPACE:/usr/src --workdir /usr/src ${DOCKER_IMAGE} ${scannerHome}/bin/sonar-scanner
+                        '''
                     }
                 }
+            }
+        }
 
-                stage('Build') {
-                    steps {
-                        script {
-                            if (LANG_TYPE == 'java') {
-                                withEnv(["JAVA_HOME=${JDK_HOME}"]) {
-                                    sh 'docker build -t cargo-solutions .'
-                                    //sh 'chmod +x gradlew && ./gradlew build'
-                                }
-                            } else if (LANG_TYPE == 'nodejs') {
-                                sh 'npm install'
-                            } else if (LANG_TYPE == 'python') {
-                                sh 'pip install -r requirements.txt'
-                            }
-                        }
-                    }
-                }
-
-                stage('SonarQube analysis') {
-                    steps {
-                        script {
-                            def scannerHome = tool 'SonarQube Scanner 6.1';
-                            withSonarQubeEnv('SonarQube') {
-                                sh "${scannerHome}/bin/sonar-scanner"
-                            }
-                        }
-                    }
-                }
-
-                 stage('Test') {
-                    steps {
-                        echo 'Running tests...'
-                        script {
-                            sh 'docker-compose up -d'
-                            sh 'docker-compose run --rm test'
-                            sh 'docker-compose down -v'
-                        }
-                    }
-                 }
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                sh 'docker-compose up -d'
+                sh 'docker-compose run --rm test'
+                sh 'docker-compose down -v'
             }
         }
     }
