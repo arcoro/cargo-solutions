@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         LANG_TYPE = ""
-        //DOCKER_IMAGE = 'cargo-solutions'
+        DOCKER_IMAGE = 'cargo-solutions'
         JDK_HOME = tool name: 'JDK 22', type: 'jdk'
     }
 
@@ -44,7 +44,7 @@ pipeline {
                     steps {
                         script {
                             if (LANG_TYPE == 'java') {
-                                //sh 'docker build -t ${DOCKER_IMAGE} .'
+                                sh 'docker build -t ${DOCKER_IMAGE} .'
                                 withEnv(["JAVA_HOME=${JDK_HOME}"]) {
                                     sh 'chmod +x gradlew && ./gradlew build'
                                 }
