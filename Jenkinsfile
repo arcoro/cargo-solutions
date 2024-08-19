@@ -1,7 +1,8 @@
 pipeline {
     agent any
-    environment{
+    environment {
         LANG_TYPE = ""
+        JDK_HOME = tool name: 'JDK 22', type: 'jdk'
     }
 
     stages {
@@ -42,7 +43,9 @@ pipeline {
                     steps {
                         script {
                             if (LANG_TYPE == 'java') {
-                                sh 'chmod +x gradlew && ./gradlew build'
+                                withEnv(["JAVA_HOME=${JDK_HOME}"]) {
+                                    sh 'chmod +x gradlew && ./gradlew build'
+                                }
                             } else if (LANG_TYPE == 'nodejs') {
                                 sh 'npm install'
                             } else if (LANG_TYPE == 'python') {
