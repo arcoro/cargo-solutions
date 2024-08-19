@@ -66,14 +66,16 @@ pipeline {
                     }
                 }
 
-                stage('Test') {
+                 stage('Test') {
                     steps {
                         echo 'Running tests...'
                         script {
+                            sh 'docker-compose up -d'
                             sh 'docker-compose run --rm test'
+                            sh 'docker-compose down -v'
                         }
                     }
-                }
+                 }
             }
         }
     }
