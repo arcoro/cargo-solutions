@@ -44,7 +44,7 @@ pipeline {
                         script {
                             if (LANG_TYPE == 'java') {
                                 withEnv(["JAVA_HOME=${JDK_HOME}"]) {
-                                    sh 'docker-compose up -d'
+                                    sh 'docker build -t cargo-solutions .'
                                     //sh 'chmod +x gradlew && ./gradlew build'
                                 }
                             } else if (LANG_TYPE == 'nodejs') {
