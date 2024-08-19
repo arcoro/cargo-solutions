@@ -44,7 +44,8 @@ pipeline {
                         script {
                             if (LANG_TYPE == 'java') {
                                 withEnv(["JAVA_HOME=${JDK_HOME}"]) {
-                                    sh 'chmod +x gradlew && ./gradlew build'
+                                    sh 'docker-compose up -d'
+                                    //sh 'chmod +x gradlew && ./gradlew build'
                                 }
                             } else if (LANG_TYPE == 'nodejs') {
                                 sh 'npm install'
