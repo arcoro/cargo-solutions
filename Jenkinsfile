@@ -44,6 +44,7 @@ pipeline {
                     steps {
                         script {
                             if (LANG_TYPE == 'java') {
+                                sh 'docker-compose up -d'
                                 sh 'docker build -t ${DOCKER_IMAGE} .'
                                 withEnv(["JAVA_HOME=${JDK_HOME}"]) {
                                     sh 'chmod +x gradlew && ./gradlew build'
